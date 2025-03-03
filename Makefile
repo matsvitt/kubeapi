@@ -17,9 +17,25 @@ get2:
 
 
 build:
-	docker build -t kubeapi .
+	docker build -t matsvitt/kubetestapi:latest .
+
+push:
+	docker push matsvitt/kubetestapi:latest
 
 yaml:
 	bin/kompose convert
+	mkdir -p helm_input
+	rm -rf helm_input/*yaml
+	mkdir -p kubapitestchart
+	mv kubetestapi*yaml helm_input
 
 
+helmify:
+	wget https://github.com/arttor/helmify/releases/download/v0.4.17/helmify_Linux_x86_64.tar.gz
+	tar xvzf helmify_Linux_x86_64.tar.gz
+	mv helmify bin
+	chmod +x bin/helmify
+	rm -rf helmify_Linux_x86_64.tar.gz*
+
+helmchart:
+	bin/helmify -f ./helm_input -r kubetestapichart

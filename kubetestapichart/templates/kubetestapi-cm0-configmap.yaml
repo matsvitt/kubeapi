@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "kubetestapichart.fullname" . }}-cm0
+  labels:
+    io.kompose.service: kubetestapi
+  {{- include "kubetestapichart.labels" . | nindent 4 }}
+data:
+  .gitignore: {{ .Values.cm0.Gitignore | toYaml | indent 1 }}
+  Dockerfile: {{ .Values.cm0.dockerfile | toYaml | indent 1 }}
+  Makefile: {{ .Values.cm0.makefile | toYaml | indent 1 }}
+  README.md: {{ .Values.cm0.rEADMEMd | toYaml | indent 1 }}
+  app.py: {{ .Values.cm0.appPy | toYaml | indent 1 }}
+  docker-compose.yml: {{ .Values.cm0.dockerComposeYml | toYaml | indent 1 }}
+  requirements.txt: {{ .Values.cm0.requirementsTxt | toYaml | indent 1 }}
