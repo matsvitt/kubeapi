@@ -19,3 +19,7 @@ get2:
 build:
 	docker build -t kubeapi .
 
+yaml:
+	bin/kompose convert
+
+
