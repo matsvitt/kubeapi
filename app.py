@@ -48,7 +48,7 @@ def read_item(id: int):
             return data
     elif id in db:
         logging.info(f"Data read from in-memory database")
-        return {"id": id, "data": db[id]}
+        return {"id": id, "data": db[id] , "source" : "inmemory" }
     return {"error": "Item not found"}
 
 @app.get("/readshared/{id}")
@@ -61,7 +61,7 @@ def read_shared_item(id: int):
             return data    
     elif id in db_shared:
         logging.info(f"Data read from in-memory shared database")
-        return {"id": id, "data": db_shared[id]}
+        return {"id": id, "data": db_shared[id] , "source" : "inmemory"}
     return {"error": "Shared item not found"}
 
 @app.get("/hello")
