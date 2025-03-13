@@ -41,7 +41,7 @@ def create_shared_item(item: Item):
 @app.get("/read/{id}")
 def read_item(id: int):
     
-    if os.path.exists("f/data/data{id}.json"):
+    if os.path.exists(f"/data/data{id}.json"):
         with open(f"/data/data{id}.json","r") as f:
             data = json.load(f)
             logging.info(f"Data read from /data/data{id}.json")
@@ -54,7 +54,7 @@ def read_item(id: int):
 @app.get("/readshared/{id}")
 def read_shared_item(id: int):
     
-    if os.path.exists("f/datashared/data{id}.json"):
+    if os.path.exists(f"/datashared/data{id}.json"):
         with open(f"/datashared/data{id}.json","r") as f:
             data = json.load(f)
             logging.info(f"Data read from /datashared/data{id}.json")
