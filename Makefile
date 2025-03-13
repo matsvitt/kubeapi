@@ -16,11 +16,14 @@ get2:
 	curl -X GET "http://127.0.0.1:8000/readshared/2"
 
 
+
+rebuild: build push
+
 build:
-	docker build -t matsvitt/kubetestapi:latest .
+	docker build -t matsvitt/kubetestapi:v2 .
 
 push:
-	docker push matsvitt/kubetestapi:latest
+	docker push matsvitt/kubetestapi:v2
 
 yaml:
 	bin/kompose convert
