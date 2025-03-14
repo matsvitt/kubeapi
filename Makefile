@@ -3,6 +3,9 @@ default: run
 run:
 	uvicorn app:app --reload
 
+runt:
+	docker run -v /home/matthias/src/kubeapi/data:/data -v /home/matthias/src/kubeapi/datashared:/datashared -p 8900:8000 docker.io/matsvitt/kubetestapix:latest
+
 post1:
 	curl -X POST "http://127.0.0.1:8000/create" -H "Content-Type: application/json" -d '{"id": 1, "data": "example data"}'
 
@@ -20,10 +23,10 @@ get2:
 rebuild: build push
 
 build:
-	docker build -t matsvitt/kubetestapi:v2 .
+	docker build -t matsvitt/kubetestapix .
 
 push:
-	docker push matsvitt/kubetestapi:v2
+	docker push matsvitt/kubetestapix
 
 yaml:
 	bin/kompose convert

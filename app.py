@@ -6,6 +6,9 @@ import json
 
 logging.basicConfig(level=logging.INFO)
 
+
+logging.info(f"Starting test api v2")
+
 app = FastAPI()
 
 db = {}  # Simulated in-memory database

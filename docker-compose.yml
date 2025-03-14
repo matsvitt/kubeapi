@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   kubetestapi:
-    image: matsvitt/kubetestapi:latest
+    image: matsvitt/kubetestapix:latest
     ports:
       - "8000:8000"
     volumes:
@@ -11,4 +11,4 @@ services:
       - ./datashared:/datashared
     environment:
       - PYTHONUNBUFFERED=1
-    command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    command: ["uvicorn", "appb:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
