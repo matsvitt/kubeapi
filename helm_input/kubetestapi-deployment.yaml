@@ -25,7 +25,7 @@ spec:
       containers:
         - args:
             - uvicorn
-            - app:app
+            - appb:app
             - --host
             - 0.0.0.0
             - --port
@@ -34,26 +34,21 @@ spec:
           env:
             - name: PYTHONUNBUFFERED
               value: "1"
-          image: matsvitt/kubetestapi:latest
+          image: docker.io/matsvitt/kubetestapix:v6
           name: kubetestapi
           ports:
             - containerPort: 8000
               protocol: TCP
           volumeMounts:
-            - mountPath: /app
-              name: kubetestapi-cm0
             - mountPath: /data
-              name: kubetestapi-claim1
+              name: kubetestapi-claim0
             - mountPath: /datashared
-              name: kubetestapi-claim2
+              name: kubetestapi-claim1
       restartPolicy: Always
       volumes:
-        - configMap:
-            name: kubetestapi-cm0
-          name: kubetestapi-cm0
+        - name: kubetestapi-claim0
+          persistentVolumeClaim:
+            claimName: kubetestapi-claim0
         - name: kubetestapi-claim1
           persistentVolumeClaim:
             claimName: kubetestapi-claim1
-        - name: kubetestapi-claim2
-          persistentVolumeClaim:
-            claimName: kubetestapi-claim2

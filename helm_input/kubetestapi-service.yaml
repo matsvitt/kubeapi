@@ -8,6 +8,7 @@ metadata:
     io.kompose.service: kubetestapi
   name: kubetestapi
 spec:
+  type: LoadBalancer
   ports:
     - name: "8000"
       port: 8000

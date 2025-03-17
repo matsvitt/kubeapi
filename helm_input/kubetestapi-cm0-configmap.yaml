@@ -7,7 +7,7 @@ data:
     *$py.class
 
 
-
+    bin
     web*yaml
 
     # C extensions
@@ -194,7 +194,10 @@ data:
 
     CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
   Makefile: |
-    default: run
+    default: xhelm
+
+
+    .PHONY: chart upgrade xhelm
 
     run:
     	uvicorn app:app --reload
@@ -233,8 +236,22 @@ data:
     	chmod +x bin/helmify
     	rm -rf helmify_Linux_x86_64.tar.gz*
 
-    helmchart:
+    chart:
     	bin/helmify -f ./helm_input -r kubetestapichart
+
+
+    install:
+    	helm install kubeapitest1 kubetestapichart/ --namespace caddy-system
+
+    uninstall:
+    	helm uninstall kubeapitest1 --namespace caddy-system
+
+
+    upgrade:
+    	helm upgrade kubeapitest1 kubetestapichart/ --namespace caddy-system
+
+
+    xhelm: chart upgrade
   README.md: |
     # kubeapi
     Test Service to store and retrieve test items on exclusive and shared folders
@@ -244,12 +261,16 @@ data:
 
     curl -L https://github.com/kubernetes/kompose/releases/download/v1.34.0/kompose-linux-amd64 -o kompose
   app.py: "from fastapi import FastAPI\nfrom pydantic import BaseModel\nimport logging\nimport os\nimport json\n\nlogging.basicConfig(level=logging.INFO)\n\napp = FastAPI()\n\ndb = {}  # Simulated in-memory database\ndb_shared = {}  # Simulated in-memory shared database\n\nclass Item(BaseModel):\n    id: int\n    data: str\n\n@app.post(\"/create\")\ndef create_item(item: Item):\n    db[item.id] = item.data\n    \n    if os.path.exists(\"/data\"):\n        with open(f\"/data/data{item.id}.json\",\"w\") as f:\n            json.dump(item.model_dump_json(), f)\n            logging.info(f\"Data saved to /data/data{item.id}.json\") \n    else:\n         logging.warning(\"/data directory does not exist\")   \n    return {\"message\": \"Item created\", \"id\": item.id}\n\n@app.post(\"/createshared\")\ndef create_shared_item(item: Item):\n    db_shared[item.id] = item.data\n    if os.path.exists(\"/datashared\"):\n        with open(f\"/datashared/data{item.id}.json\",\"w\") as f:\n            json.dump(item.model_dump_json(), f)\n            logging.info(f\"Data saved to /datashared/data{item.id}.json\") \n    else:\n         logging.warning(\"/data directory does not exist\")  \n    return {\"message\": \"Shared item created\", \"id\": item.id}\n\n@app.get(\"/read/{id}\")\ndef read_item(id: int):\n    \n    if os.path.exists(\"f/data/data{id}.json\"):\n        with open(f\"/data/data{id}.json\",\"r\") as f:\n            data = json.load(f)\n            logging.info(f\"Data read from /data/data{id}.json\")\n            return data\n    elif id in db:\n        logging.info(f\"Data read from in-memory database\")\n        return {\"id\": id, \"data\": db[id]}\n    return {\"error\": \"Item not found\"}\n\n@app.get(\"/readshared/{id}\")\ndef read_shared_item(id: int):\n    \n    if os.path.exists(\"f/datashared/data{id}.json\"):\n        with open(f\"/datashared/data{id}.json\",\"r\") as f:\n            data = json.load(f)\n            logging.info(f\"Data read from /datashared/data{id}.json\")\n            return data    \n    elif id in db_shared:\n        logging.info(f\"Data read from in-memory shared database\")\n        return {\"id\": id, \"data\": db_shared[id]}\n    return {\"error\": \"Shared item not found\"}\n\n@app.get(\"/hello\")\ndef hello():\n    return \"<html><body><h1>Hi there from fast api!</h1></body></html>\"   "
+  data1.json: |
+    {"id": 1, "data": "example data 20250305-1600"}
+  datashared1.json: |
+    {"id": 2, "data": "example shared data 20250305-1600"}
   docker-compose.yml: |
     version: '3.8'
 
     services:
       kubetestapi:
-        image: matsvitt/kubetestapi:latest
+        image: matsvitt/kubetestapix:latest
         ports:
           - "8000:8000"
         volumes:
@@ -258,11 +279,45 @@ data:
           - ./datashared:/datashared
         environment:
           - PYTHONUNBUFFERED=1
-        command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+        command: ["uvicorn", "appb:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+  read_k8s_test.sh: |+
+    #!/bin/bash
+
+    today=$(date +%Y%m%d-%H%M)
+
+    #echo "{\"id\": 1, \"data\": \"example data ${today}\"}" > data1.json
+    #echo "{\"id\": 2, \"data\": \"example shared data ${today}\"}" > datashared1.json
+
+
+    #curl -X POST "https://kubix1.cookingnumbers.com/create" -H "Content-Type: application/json" -d @./data1.json
+    #curl -X POST "https://kubix1.cookingnumbers.com/createshared" -H "Content-Type: application/json" -d @./datashared1.json
+    echo ""
+    curl -X GET "https://kubix1.cookingnumbers.com/read/1"
+
+    echo ""
+    curl -X GET "https://kubix1.cookingnumbers.com/readshared/2"
+
   requirements.txt: |
     fastapi
     uvicorn
     pydantic
+  run_k8s_test.sh: |+
+    #!/bin/bash
+
+    today=$(date +%Y%m%d-%H%M)
+
+    echo "{\"id\": 1, \"data\": \"example data ${today}\"}" > data1.json
+    echo "{\"id\": 2, \"data\": \"example shared data ${today}\"}" > datashared1.json
+
+
+    curl -X POST "https://kubix1.cookingnumbers.com/create" -H "Content-Type: application/json" -d @./data1.json
+    curl -X POST "https://kubix1.cookingnumbers.com/createshared" -H "Content-Type: application/json" -d @./datashared1.json
+    echo ""
+    curl -X GET "https://kubix1.cookingnumbers.com/read/1"
+
+    echo ""
+    curl -X GET "https://kubix1.cookingnumbers.com/readshared/2"
+
 kind: ConfigMap
 metadata:
   labels:

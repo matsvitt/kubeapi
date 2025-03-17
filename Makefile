@@ -1,4 +1,7 @@
-default: run
+default: all
+
+
+.PHONY: chart upgrade xhelm
 
 run:
 	uvicorn app:app --reload
@@ -28,13 +31,16 @@ build:
 push:
 	docker push matsvitt/kubetestapix
 
+
+all: yaml chart
+
 yaml:
 	bin/kompose convert
 	mkdir -p helm_input
 	rm -rf helm_input/*yaml
 	mkdir -p kubapitestchart
 	mv kubetestapi*yaml helm_input
-
+	rm -rf kubapitestchart
 
 helmify:
 	wget https://github.com/arttor/helmify/releases/download/v0.4.17/helmify_Linux_x86_64.tar.gz
@@ -43,5 +49,21 @@ helmify:
 	chmod +x bin/helmify
 	rm -rf helmify_Linux_x86_64.tar.gz*
 
-helmchart:
+chart:
+	mkdir -p kubetestapichart
+	rm -rf kubetestapichart/*
 	bin/helmify -f ./helm_input -r kubetestapichart
+
+
+install:
+	helm install kubeapitest1 kubetestapichart/ --namespace caddy-system
+
+uninstall:
+	helm uninstall kubeapitest1 --namespace caddy-system
+
+
+upgrade:
+	helm upgrade kubeapitest1 kubetestapichart/ --namespace caddy-system
+
+
+xhelm: chart upgrade

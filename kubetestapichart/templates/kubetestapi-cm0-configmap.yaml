@@ -11,5 +11,9 @@ data:
   Makefile: {{ .Values.cm0.makefile | toYaml | indent 1 }}
   README.md: {{ .Values.cm0.rEADMEMd | toYaml | indent 1 }}
   app.py: {{ .Values.cm0.appPy | toYaml | indent 1 }}
+  data1.json: {{ .Values.cm0.data1Json | toYaml | indent 1 }}
+  datashared1.json: {{ .Values.cm0.datashared1Json | toYaml | indent 1 }}
   docker-compose.yml: {{ .Values.cm0.dockerComposeYml | toYaml | indent 1 }}
+  read_k8s_test.sh: {{ .Values.cm0.readK8STestSh | toYaml | indent 1 }}
   requirements.txt: {{ .Values.cm0.requirementsTxt | toYaml | indent 1 }}
+  run_k8s_test.sh: {{ .Values.cm0.runK8STestSh | toYaml | indent 1 }}

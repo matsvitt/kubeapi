@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubeapix
+  namespace: caddy-system
+  annotations:
+    kubernetes.io/ingress.class: caddy
+spec:
+  rules:
+  - host: kubix1.cookingnumbers.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kubetestapi
+            port:
+              number: 8000

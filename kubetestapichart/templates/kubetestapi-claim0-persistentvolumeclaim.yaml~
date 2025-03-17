@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "kubetestapichart.fullname" . }}-testapi-claim0
+  labels:
+    io.kompose.service: kubetestapi-claim0
+  {{- include "kubetestapichart.labels" . | nindent 4 }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.pvc.testapiClaim0.storageRequest | quote }}
